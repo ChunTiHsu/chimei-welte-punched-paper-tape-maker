@@ -133,6 +133,9 @@ html,body{
 .bpm-box input[type=range]{
   width:clamp(80px,10vw,140px);
   accent-color:var(--brass-bright);
+  cursor:pointer;
+  touch-action:none; /* 確保平板觸控滑動時不會觸發整頁捲動，而是專心拖曳滑桿 */
+  user-select:auto;  /* 允許滑桿接受原生拖曳操作 */
 }
 .bpm-box .bpm-val{ min-width:56px; text-align:center; color:var(--brass-bright); }
 
@@ -360,6 +363,28 @@ html,body{
   .brand{ font-size:11px; padding-right:6px; }
   .ctrl-btn{ padding:7px 10px; font-size:12px; }
 }
+/* ---- 右下角紙捲版權聲明 Footer ---- */
+.paper-footer {
+  position: absolute;
+  right: 16px;
+  bottom: 8px;
+  text-align: right;
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--oak);
+  opacity: 0.75;
+  pointer-events: none; /* 避免干擾觸控與點擊操作 */
+  z-index: 2;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+.paper-footer p {
+  margin: 0;
+}
+.paper-footer .copy {
+  font-weight: 700;
+  margin-top: 2px;
+  color: var(--walnut);
+}
 </style>
 </head>
 <body>
@@ -405,6 +430,12 @@ html,body{
       <div class="roll-content" id="rollContent">
         <div class="bars-header" id="barsHeader"><!-- 小節/拍號時間軸由 JS 產生，可點擊跳轉 --></div>
         <div class="tracks-col" id="tracksCol"><!-- 16 條音軌列由 JS 產生 --></div>
+         <!-- 版權與使用聲明 Footer -->
+         <footer class="paper-footer">
+           <p>本教材為互動示範版本，僅供授課與非營利學習使用。</p>
+           <p>未經許可，禁止轉載、散布或作商業營利使用。引用時請註明出處。</p>
+           <p class="copy">© 2026 ChunTiHsu</p>
+         </footer>
         <div class="playhead" id="playhead"><div class="head-dot"></div></div>
       </div>
     </div>
@@ -828,10 +859,21 @@ let pendingTimeouts = [];
 
 const bpmSlider = document.getElementById('bpmSlider');
 const bpmVal = document.getElementById('bpmVal');
-bpmSlider.addEventListener('input', () => {
+
+// 當滑桿被拖曳滑動時，即時更新 BPM 數據
+function updateBpmFromSlider(e) {
+  e.stopPropagation(); // 檔下拖曳事件，不讓它傳到下方的紙捲
   bpm = parseInt(bpmSlider.value, 10);
   bpmVal.textContent = bpm;
-});
+}
+
+// 綁定所有拖曳與點按相關事件
+bpmSlider.addEventListener('input', updateBpmFromSlider);
+bpmSlider.addEventListener('change', updateBpmFromSlider);
+bpmSlider.addEventListener('pointerdown', (e) => e.stopPropagation());
+bpmSlider.addEventListener('pointermove', (e) => e.stopPropagation());
+bpmSlider.addEventListener('touchstart', (e) => e.stopPropagation());
+bpmSlider.addEventListener('touchmove', (e) => e.stopPropagation());
 
 function stepDuration() { return 60 / bpm; } // 每格 = 一拍（四分音符）
 function totalDuration() { return stepDuration() * STEP_COUNT; }

@@ -130,15 +130,16 @@ html,body{
   color:#f1e2c8; font-weight:700; font-size:13px;
 }
 .bpm-box .metro {
-  font-size: 20px;
-  color: var(--ink); /* 或保持原本顏色 */
-  /* 運用 4 個方向的白色陰影合成白色細外框 */
-  text-shadow: 
-    -1px -1px 0 #fff,
-     1px -1px 0 #fff,
-    -1px  1px 0 #fff,
-     1px  1px 0 #fff,
-     0 0 6px rgba(255, 255, 255, 0.8); /* 微微的白色發光 */
+  font-size: 16px;
+  color: var(--ink); /* 黑色音符 */
+  background: #ffffff; /* 白色圓底 */
+  width: 26px;
+  height: 26px;
+  border-radius: 50%; /* 變成正圓形 */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25); /* 微微下陰影 */
 }
 .bpm-box input[type=range]{
   width:clamp(80px,10vw,140px);
@@ -490,7 +491,7 @@ const PIANO_NOTES = [
 // 打擊樂器：大鼓 / 三角鐵 / 銅鈸
 const PERCUSSION = [
   {name:'大鼓',   icon:'🥁', type:'bass'},
-  {name:'三角鐵', icon:'⚠️', type:'triangle'},
+  {name:'三角鐵', icon:'△', type:'triangle'},
   {name:'銅鈸',   icon:'✨', type:'cymbal'},
 ];
 

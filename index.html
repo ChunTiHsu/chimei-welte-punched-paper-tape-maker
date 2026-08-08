@@ -129,7 +129,17 @@ html,body{
   border:2px solid rgba(255,255,255,0.15);
   color:#f1e2c8; font-weight:700; font-size:13px;
 }
-.bpm-box .metro{ font-size:18px; }
+.bpm-box .metro {
+  font-size: 20px;
+  color: var(--ink); /* 或保持原本顏色 */
+  /* 運用 4 個方向的白色陰影合成白色細外框 */
+  text-shadow: 
+    -1px -1px 0 #fff,
+     1px -1px 0 #fff,
+    -1px  1px 0 #fff,
+     1px  1px 0 #fff,
+     0 0 6px rgba(255, 255, 255, 0.8); /* 微微的白色發光 */
+}
 .bpm-box input[type=range]{
   width:clamp(80px,10vw,140px);
   accent-color:var(--brass-bright);
@@ -408,7 +418,7 @@ html,body{
     </div>
 
     <div class="bpm-box">
-      <span class="metro">⏱️</span>
+      <span class="metro">♩</span>
       <input id="bpmSlider" type="range" min="80" max="160" step="10" value="120">
       <span class="bpm-val"><span id="bpmVal">120</span> BPM</span>
     </div>
@@ -480,8 +490,8 @@ const PIANO_NOTES = [
 // 打擊樂器：大鼓 / 三角鐵 / 銅鈸
 const PERCUSSION = [
   {name:'大鼓',   icon:'🥁', type:'bass'},
-  {name:'三角鐵', icon:'🔔', type:'triangle'},
-  {name:'銅鈸',   icon:'🪘', type:'cymbal'},
+  {name:'三角鐵', icon:'⚠️', type:'triangle'},
+  {name:'銅鈸',   icon:'✨', type:'cymbal'},
 ];
 
 // 合併成 16 條音軌 (index 0~12 鋼琴, 13~15 打擊樂)

@@ -130,7 +130,7 @@ html,body{
   color:#f1e2c8; font-weight:700; font-size:13px;
 }
 .bpm-box .metro {
-  font-size: 16px;
+  font-size: 18px;
   color: var(--ink); /* 黑色音符 */
   background: #ffffff; /* 白色圓底 */
   width: 26px;
@@ -395,6 +395,18 @@ html,body{
   font-weight: 700;
   margin-top: 2px;
   color: var(--paper);
+}
+/* 將三角鐵 Icon 獨立設定為黃銅亮金色與質感質感發光 */
+.label-row.perc-row[data-track="14"] .perc-icon,
+.label-row-perc[data-track="14"] .perc-icon {
+  color: var(--brass-bright); /* 使用黃銅亮金色 */
+  font-weight: 900;
+  font-size: 20px;
+  text-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.6),
+    0 0 8px rgba(242, 200, 119, 0.4); /* 微微的黃銅光暈，讓金屬感更突出 */
+  display: inline-block;
+  transform: scale(1.1); /* 稍微放大讓線條更清晰 */
 }
 </style>
 </head>

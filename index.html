@@ -317,7 +317,7 @@ html,body{
   flex:1 1 0; min-height:0;
   position:relative;
   border-bottom:1px solid var(--paper-line);
-  touch-action:pan-y; /* 允許垂直手勢，水平交由拖曳邏輯處理 */
+  touch-action: pan-x pan-y;
 }
 .track-row.perc-track{ background:rgba(139,94,60,0.05); }
 
@@ -825,33 +825,52 @@ function stepFromClientX(clientX) {
   return clampStep(Math.floor((clientX - rect.left) / colw));
 }
 
-// --- Pointer 事件綁定（滑鼠 + 觸控通用） ---
+// --- Pointer 事件綁定（優化平板滑動與單鍵 Toggle） ---
+let startX = 0;
+let startY = 0;
+let hasDragged = false;
+let currentTargetTrack = null;
+let currentTargetStep = null;
+
 tracksColEl.addEventListener('pointerdown', (e) => {
   const rowEl = e.target.closest('.track-row');
   if (!rowEl) return;
-  const track = parseInt(rowEl.dataset.track, 10);
-  const step = stepFromClientX(e.clientX);
-
-  let action;
-  if (occupied[track][step]) {
-    unpunchStep(track, step);
-    action = 'erase';
-  } else {
-    punchStep(track, step);
-    action = 'paint';
-  }
-  renderNotes();
-
-  dragState = { track, action, touchedSteps: new Set([step]) };
-  rowEl.setPointerCapture && rowEl.setPointerCapture(e.pointerId);
-  e.preventDefault();
+  
+  startX = e.clientX;
+  startY = e.clientY;
+  hasDragged = false;
+  
+  currentTargetTrack = parseInt(rowEl.dataset.track, 10);
+  currentTargetStep = stepFromClientX(e.clientX);
 });
 
 tracksColEl.addEventListener('pointermove', (e) => {
-  if (!dragState) return;
-  const step = stepFromClientX(e.clientX);
-  if (dragState.touchedSteps.has(step)) return; // 同一次拖曳中，每格只切換一次
-  dragState.touchedSteps.add(step);
+  if (currentTargetTrack === null) return;
+  
+  const distX = Math.abs(e.clientX - startX);
+  const distY = Math.abs(e.clientY - startY);
+  
+  // 移動超過 8px，判定為「滑動/拖曳畫面」，不執行打孔！
+  if (distX > 8 || distY > 8) {
+    hasDragged = true;
+  }
+});
+
+tracksColEl.addEventListener('pointerup', (e) => {
+  // 只有當手指移動距離 < 8px（輕點）時，才觸發 Toggle 打孔/刪除
+  if (!hasDragged && currentTargetTrack !== null && currentTargetStep !== null) {
+    if (occupied[currentTargetTrack][currentTargetStep]) {
+      unpunchStep(currentTargetTrack, currentTargetStep);
+    } else {
+      punchStep(currentTargetTrack, currentTargetStep);
+    }
+    renderNotes();
+  }
+  
+  currentTargetTrack = null;
+  currentTargetStep = null;
+  hasDragged = false;
+});
 
   const track = dragState.track;
   if (dragState.action === 'paint') {

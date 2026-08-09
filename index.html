@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>奇美無人樂團：二進位打孔紙捲創客體驗</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   設計代幣 (Design Tokens) — 溫暖木質 + 黃銅機械感
+   ============================================================ */
+:root{
+  --walnut-deep:#40291c;
+  --walnut:#5c3d2b;
+  --oak:#8a5e3c;
+  --oak-light:#b4835a;
+  --paper:#fbf1de;
+  --paper-line:#e7d3ac;
+  --paper-line-strong:#d3b785;
+  --brass:#cf9a44;
+  --brass-bright:#f2c877;
+  --leaf:#5f9e63;
+  --leaf-dark:#3f7a45;
+  --punch-red:#d9634b;
+  --punch-red-dark:#b8402c;
+  --ink:#3a2a1e;
+  --cream-key:#fff9ee;
+  --black-key:#241811;
+  --radius-lg:18px;
+  --radius-md:12px;
+  --radius-sm:7px;
+}
+
+*{box-sizing:border-box;}
+html,body{
+  margin:0;padding:0;height:100%;overflow:hidden;
+  font-family:'Baloo 2','Noto Sans TC',sans-serif;
+  background:var(--walnut-deep);
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+
+#app{
+  height:100vh;
+  height:100dvh;
+  display:flex;
+  flex-direction:column;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(255,255,255,0.05), transparent 40%),
+    linear-gradient(180deg,var(--walnut-deep),var(--walnut) 60%,var(--walnut-deep));
+  overflow:hidden;
+}
+
+/* ============================================================
+   頂部控制列
+   ============================================================ */
+.topbar{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:8px 16px;
+  background:linear-gradient(180deg,#6b4a34,#5a3d2a);
+  border-bottom:4px solid var(--brass);
+  box-shadow:0 4px 10px rgba(0,0,0,0.35);
+  flex-wrap:wrap;
+  min-height:56px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:var(--brass-bright);
+  font-weight:800;
+  font-size:clamp(13px,1.6vw,17px);
+  letter-spacing:0.5px;
+  white-space:nowrap;
+  text-shadow:0 1px 0 rgba(0,0,0,0.4);
+  padding-right:10px;
+  border-right:2px dashed rgba(255,255,255,0.2);
+  margin-right:4px;
+}
+.brand .gear{
+  display:inline-block;
+  font-size:20px;
+  animation:spin 6s linear infinite;
+}
+@keyframes spin{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
+
+.btn-group{ display:flex; gap:8px; align-items:center; }
+
+.ctrl-btn{
+  display:flex; align-items:center; gap:6px;
+  border:none; cursor:pointer;
+  padding:9px 14px;
+  border-radius:999px;
+  font-family:inherit; font-weight:700; font-size:14px;
+  color:var(--ink);
+  background:linear-gradient(180deg,var(--cream-key),#eaddc0);
+  box-shadow:0 3px 0 rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.6);
+  transition:transform .08s ease, box-shadow .08s ease, filter .15s ease;
+  white-space:nowrap;
+}
+.ctrl-btn:active{ transform:translateY(2px); box-shadow:0 1px 0 rgba(0,0,0,0.25); }
+.ctrl-btn:disabled{ opacity:0.45; cursor:not-allowed; filter:grayscale(0.3); }
+
+.ctrl-btn.play{ background:linear-gradient(180deg,#7fc084,var(--leaf-dark)); color:#fff; }
+.ctrl-btn.pause{ background:linear-gradient(180deg,#f0c877,var(--brass)); color:var(--ink); }
+.ctrl-btn.reset{ background:linear-gradient(180deg,#e6836f,var(--punch-red-dark)); color:#fff; }
+
+.mode-toggle{
+  display:flex; background:rgba(0,0,0,0.25); border-radius:999px; padding:3px; gap:3px;
+  border:2px solid rgba(255,255,255,0.15);
+}
+.mode-btn{
+  border:none; cursor:pointer; padding:8px 13px; border-radius:999px;
+  font-family:inherit; font-weight:700; font-size:13px;
+  background:transparent; color:#f1e2c8; display:flex; align-items:center; gap:5px;
+  transition:all .15s ease;
+}
+.mode-btn.active.punch{ background:linear-gradient(180deg,var(--brass-bright),var(--brass)); color:var(--ink); box-shadow:0 2px 6px rgba(0,0,0,0.35);}
+.mode-btn.active.delete{ background:linear-gradient(180deg,#ec8974,var(--punch-red-dark)); color:#fff; box-shadow:0 2px 6px rgba(0,0,0,0.35);}
+
+.bpm-box{
+  display:flex; align-items:center; gap:8px;
+  background:rgba(0,0,0,0.22); padding:6px 12px; border-radius:999px;
+  border:2px solid rgba(255,255,255,0.15);
+  color:#f1e2c8; font-weight:700; font-size:13px;
+}
+.bpm-box .metro {
+  font-size: 18px;
+  color: var(--ink); /* 黑色音符 */
+  background: #ffffff; /* 白色圓底 */
+  width: 26px;
+  height: 26px;
+  border-radius: 50%; /* 變成正圓形 */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25); /* 微微下陰影 */
+}
+.bpm-box input[type=range]{
+  width:clamp(80px,10vw,140px);
+  accent-color:var(--brass-bright);
+  cursor:pointer;
+  touch-action:none; /* 確保平板觸控滑動時不會觸發整頁捲動，而是專心拖曳滑桿 */
+  user-select:auto;  /* 允許滑桿接受原生拖曳操作 */
+}
+.bpm-box .bpm-val{ min-width:56px; text-align:center; color:var(--brass-bright); }
+
+/* ============================================================
+   主體 (兩欄式)
+   ============================================================ */
+.main-body{
+  flex:1 1 auto;
+  min-height:0;
+  display:flex;
+  overflow:hidden;
+  position:relative;
+}
+
+/* --- 左側樂器標籤欄 --- */
+.track-labels{
+  flex:0 0 auto;
+  width:clamp(96px,12vw,150px);
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  background:linear-gradient(180deg,#7a5738,#5c3d2a);
+  border-right:4px solid var(--brass);
+  box-shadow:3px 0 8px rgba(0,0,0,0.25);
+  z-index:5;
+  overflow:visible; /* 允許黑鍵懸浮跨越相鄰白鍵邊界 */
+}
+.labels-header-spacer{
+  flex:0 0 40px;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--brass-bright); font-size:11px; font-weight:700;
+  border-bottom:2px solid rgba(0,0,0,0.25);
+}
+.label-row{
+  flex:1 1 0; min-height:0;
+  display:flex; align-items:center;
+  position:relative;
+  transition:background .12s ease, box-shadow .12s ease;
+}
+
+/* ---- 真實鋼琴鍵盤（逆時針旋轉 90 度）----
+   白鍵：連續底層，鋪滿整列，音名靠右對齊
+   黑鍵：懸浮疊加在相鄰白鍵交界處（絕對定位向上下溢出自身列），
+         寬度較窄、從左側邊緣延伸，模擬真實黑鍵「短且偏移」的視覺 */
+.label-row.white-key{
+  background:linear-gradient(180deg,var(--cream-key),#efe1bd);
+  justify-content:flex-end;
+  padding-right:10px;
+  z-index:1;
+  box-shadow:inset 0 -1px 0 rgba(0,0,0,0.10);
+}
+.label-row.white-key .note-name{
+  font-size:clamp(9px,1.05vw,12px); font-weight:800; color:var(--walnut);
+}
+.label-row.black-key{
+  background:transparent;
+  z-index:3;
+  justify-content:flex-start;
+}
+.label-row.black-key .black-chip{
+  position:absolute;
+  left:0; top:-42%;
+  width:60%; height:184%;
+  background:linear-gradient(100deg,#241811,#3c2718 55%,#1a110b);
+  border:1px solid rgba(0,0,0,0.6);
+  border-radius:0 10px 10px 0;
+  box-shadow:
+    3px 2px 6px rgba(0,0,0,0.5),
+    inset -2px 0 3px rgba(255,255,255,0.10),
+    inset 0 -8px 10px rgba(0,0,0,0.45);
+  display:flex; align-items:center; justify-content:center;
+}
+.label-row.black-key .note-name{
+  font-size:9px; font-weight:800; color:var(--brass-bright);
+  text-shadow:0 1px 1px rgba(0,0,0,0.6);
+}
+
+.label-row.perc-row{
+  background:rgba(0,0,0,0.10);
+  justify-content:flex-start; gap:6px; padding-left:8px; z-index:1;
+  border-top:1px solid rgba(0,0,0,0.25);
+}
+.label-row .perc-icon{
+  flex:0 0 auto; font-size:clamp(15px,2vw,22px);
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,0.4));
+}
+.label-row .perc-name{ font-size:clamp(9px,1.1vw,12px); font-weight:700; color:#fbeed4; }
+
+/* 播放時燈號同步發光 */
+.label-row.white-key.active-glow{
+  background:radial-gradient(circle at right, rgba(242,200,119,0.65), rgba(242,200,119,0.15) 70%);
+  box-shadow:inset 0 0 14px rgba(242,200,119,0.55);
+}
+.label-row.black-key.active-glow .black-chip{
+  box-shadow:0 0 14px 4px var(--brass-bright), inset 0 0 6px rgba(255,255,255,0.35);
+}
+.label-row.perc-row.active-glow{
+  background:radial-gradient(circle at left, rgba(242,200,119,0.55), rgba(242,200,119,0.08) 70%);
+  box-shadow:inset 0 0 14px rgba(242,200,119,0.5);
+}
+.label-row.perc-row.active-glow .perc-icon{ transform:scale(1.25); }
+
+/* --- 右側打孔紙捲區 --- */
+.roll-wrapper{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-x:auto;
+  overflow-y:hidden;
+  position:relative;
+  background-color:#2c1c12; /* 只作為捲動軌道外的底色，紙捲主體寬度已修正為完整覆蓋 */
+  scrollbar-width:thin;
+  scrollbar-color:var(--brass) rgba(0,0,0,0.2);
+}
+.roll-wrapper::-webkit-scrollbar{ height:12px; }
+.roll-wrapper::-webkit-scrollbar-track{ background:rgba(0,0,0,0.25); }
+.roll-wrapper::-webkit-scrollbar-thumb{ background:var(--brass); border-radius:6px; border:2px solid rgba(0,0,0,0.2); }
+
+/* 【錯誤修正】：明確指定 roll-content 寬度 = 欄寬 x 16，
+   確保捲動到小節 3、4 時紙張底色（--paper）仍完整覆蓋，不再露出外層深咖啡色 */
+.roll-content{
+  position:relative;
+  width:calc(var(--colw) * 16);
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  background:var(--paper);
+  background-image:
+    repeating-linear-gradient(90deg, transparent 0, transparent calc(var(--colw) - 1px), var(--paper-line) calc(var(--colw) - 1px), var(--paper-line) var(--colw)),
+    repeating-linear-gradient(90deg, transparent 0, transparent calc(var(--colw)*4 - 2px), var(--paper-line-strong) calc(var(--colw)*4 - 2px), var(--paper-line-strong) calc(var(--colw)*4));
+  box-shadow:inset 0 0 30px rgba(90,60,30,0.15);
+}
+
+/* 小節/拍號時間軸（可點擊跳轉） */
+.bars-header{
+  flex:0 0 40px;
+  display:flex;
+  border-bottom:2px solid var(--paper-line-strong);
+  background:linear-gradient(180deg,#f6e9cc,#eeddb4);
+}
+.bar-block{
+  width:calc(var(--colw)*4);
+  flex:0 0 auto;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  border-right:2px solid var(--paper-line-strong);
+  gap:2px;
+}
+.bar-block .bar-title{
+  font-size:11px; font-weight:800; color:var(--walnut);
+  cursor:pointer; padding:0 6px; border-radius:6px;
+  transition:background .12s ease, color .12s ease;
+}
+.bar-block .bar-title:hover{ background:rgba(207,154,68,0.35); color:var(--ink); }
+.bar-block .beat-nums{ display:flex; gap:0; width:100%; }
+.bar-block .beat-nums span{
+  flex:1; text-align:center; font-size:9px; color:var(--oak); font-weight:700;
+  cursor:pointer; border-radius:4px; padding:1px 0;
+  transition:background .1s ease, color .1s ease;
+}
+.bar-block .beat-nums span:hover{ background:rgba(207,154,68,0.4); color:var(--ink); }
+
+/* 音軌列（含 16 拍格線）*/
+.tracks-col{
+  flex:1 1 0; min-height:0;
+  display:flex; flex-direction:column;
+  width:calc(var(--colw)*16);
+}
+.track-row{
+  flex:1 1 0; min-height:0;
+  position:relative;
+  border-bottom:1px solid var(--paper-line);
+  touch-action: pan-x pan-y; /* 允許雙向手勢 */
+}
+.track-row.perc-track{ background:rgba(139,94,60,0.05); }
+
+/* 打孔模式游標樣式 */
+.roll-wrapper.mode-punch .track-row{ cursor:cell; }
+.roll-wrapper.mode-delete .track-row{ cursor:not-allowed; }
+.roll-wrapper.mode-delete .note-hole{ cursor:pointer; }
+
+/* ---- 圓形打孔 (Punch Hole) ----
+   模擬打洞機按下去的圓孔：透光中心 + 內凹陰影簍空感 */
+.note-hole{
+  position:absolute;
+  border-radius:50%;
+  border:1px solid rgba(0,0,0,0.35);
+  background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.9), var(--hole-color,#e0a63e) 45%, var(--hole-color-dark,#c98826) 100%);
+  box-shadow:
+    inset 0 3px 4px rgba(0,0,0,0.55),
+    inset 0 -2px 3px rgba(255,255,255,0.18),
+    0 2px 3px rgba(0,0,0,0.35);
+  transition:transform .08s ease, box-shadow .1s ease;
+}
+.note-hole.type-bass{ --hole-color:#ea8973; --hole-color-dark:#c94b34; }
+.note-hole.type-triangle{ --hole-color:#7fc9c6; --hole-color-dark:#3f8b88; }
+.note-hole.type-cymbal{ --hole-color:#c19fe6; --hole-color-dark:#7c53ab; }
+.note-hole.preview{ opacity:0.85; box-shadow:0 0 0 2px var(--brass-bright), inset 0 3px 4px rgba(0,0,0,0.5); }
+.note-hole.active-note{
+  transform:scale(1.2);
+  box-shadow:0 0 0 3px var(--brass-bright), 0 0 14px 4px rgba(242,200,119,0.9), inset 0 3px 4px rgba(0,0,0,0.55);
+  z-index:4;
+}
+
+/* 讀取線 (Playhead) */
+.playhead{
+  position:absolute;
+  top:0; bottom:0;
+  left:0;
+  width:3px;
+  background:linear-gradient(180deg, var(--brass-bright), var(--leaf) 60%, var(--punch-red));
+  box-shadow:0 0 10px 2px rgba(242,200,119,0.85);
+  z-index:10;
+  pointer-events:none;
+  border-radius:2px;
+  display:none;
+}
+.playhead .head-dot{
+  position:absolute; top:-8px; left:50%; transform:translateX(-50%);
+  width:16px; height:16px; border-radius:50%;
+  background:radial-gradient(circle, var(--brass-bright), var(--brass));
+  box-shadow:0 0 8px 2px rgba(242,200,119,0.8);
+}
+
+/* 小螢幕微調 */
+@media (max-width:640px){
+  .brand{ font-size:11px; padding-right:6px; }
+  .ctrl-btn{ padding:7px 10px; font-size:12px; }
+}
+/* ---- 右下角紙捲版權聲明 Footer ---- */
+.paper-footer {
+  position: absolute;
+  right: 16px;
+  bottom: 8px;
+  text-align: right;
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--paper);
+  opacity: 0.75;
+  pointer-events: none; /* 避免干擾觸控與點擊操作 */
+  z-index: 2;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+.paper-footer p {
+  margin: 0;
+}
+.paper-footer .copy {
+  font-weight: 700;
+  margin-top: 2px;
+  color: var(--paper);
+}
+/* 將三角鐵 Icon 獨立設定為黃銅亮金色與質感質感發光 */
+.label-row.perc-row[data-track="14"] .perc-icon,
+.label-row-perc[data-track="14"] .perc-icon {
+  color: var(--brass-bright); /* 使用黃銅亮金色 */
+  font-weight: 900;
+  font-size: 20px;
+  text-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.6),
+    0 0 8px rgba(242, 200, 119, 0.4); /* 微微的黃銅光暈，讓金屬感更突出 */
+  display: inline-block;
+  transform: scale(1.1); /* 稍微放大讓線條更清晰 */
+}
+
+/* ============================================================
+   【新增】匯出 WAV 音樂種子 下載按鈕樣式
+   ============================================================ */
+.ctrl-btn.download{
+  background:linear-gradient(180deg,#e2c179,var(--brass));
+  color:var(--ink);
+}
+.ctrl-btn.download:hover{ filter:brightness(1.06); }
+.ctrl-btn.download:disabled{ opacity:0.55; }
+</style>
+</head>
+<body>
+<div id="app" style="--colw:80px;">
+
+  <!-- ============================================================
+       頂部固定控制列
+  ============================================================ -->
+  <header class="topbar">
+    <div class="brand"><span class="gear">⚙️</span>奇美無人樂團 · 打孔紙捲</div>
+
+    <div class="btn-group">
+      <button id="playBtn" class="ctrl-btn play">▶ 播放</button>
+      <button id="pauseBtn" class="ctrl-btn pause">❚❚ 暫停</button>
+      <button id="resetBtn" class="ctrl-btn reset">↺ 清空紙捲</button>
+    </div>
+
+    <div class="bpm-box">
+      <span class="metro">♩</span>
+      <input id="bpmSlider" type="range" min="80" max="160" step="10" value="120">
+      <span class="bpm-val"><span id="bpmVal">120</span> BPM</span>
+    </div>
+
+    <!-- 【新增】匯出 WAV 音樂種子下載按鈕，為銜接生成式 AI 做準備 -->
+    <button id="downloadBtn" class="ctrl-btn download" type="button">📥 下載音樂種子 (WAV)</button>
+  </header>
+
+  <!-- ============================================================
+       主體：左側樂器標籤欄 + 右側打孔紙捲區
+  ============================================================ -->
+  <div class="main-body">
+
+    <!-- 左側固定樂器標籤欄（真實鋼琴鍵盤逆時針旋轉 90 度 + 打擊樂器） -->
+    <aside class="track-labels" id="trackLabels">
+      <div class="labels-header-spacer">音軌</div>
+      <!-- 16 條音軌標籤將由 JS 動態產生 -->
+    </aside>
+
+    <!-- 右側可橫向捲動的打孔紙捲區 -->
+    <div class="roll-wrapper mode-punch" id="rollWrapper">
+      <div class="roll-content" id="rollContent">
+        <div class="bars-header" id="barsHeader"><!-- 小節/拍號時間軸由 JS 產生，可點擊跳轉 --></div>
+        <div class="tracks-col" id="tracksCol"><!-- 16 條音軌列由 JS 產生 --></div>
+        <div class="playhead" id="playhead"><div class="head-dot"></div></div>
+      </div>
+      <!-- 版權與使用聲明 Footer -->
+      <footer class="paper-footer">
+         <p>本教材為互動示範版本，僅供授課與非營利學習使用。</p>
+         <p>未經許可，禁止轉載、散布或作商業營利使用。</p>
+         <p>引用時請註明出處。</p>
+         <p class="copy">© 2026 ChunTiHsu</p>
+      </footer>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   奇美無人樂團：打孔紙捲互動邏輯
+   ------------------------------------------------------------
+   結構：
+   1. 資料模型 (TRACKS / notes)
+   2. DOM 初始化 (產生真實鋼琴鍵盤標籤 + 打孔紙捲格線)
+   3. Web Audio API 音色合成 (鋼琴 / 大鼓 / 三角鐵 / 銅鈸；可同時供即時播放與離線 WAV 匯出共用)
+   4. 打孔互動 (Pointer Events：滑鼠 + 觸控通用，單鍵 Toggle 圓形打孔)
+      【本次修改重點】新增觸控「移動距離閾值 (8px)」判定：
+        - 移動距離在閾值內 → 判定為單純點擊，執行打孔/取消打孔 Toggle
+        - 移動距離超過閾值 → 立即取消打孔判定，交由瀏覽器原生水平捲動
+          （.track-row 的 touch-action:pan-x pan-y 已允許雙向原生手勢，
+           因此不再手動攔截/preventDefault，讓原生捲動自然接手）
+      滑鼠（mouse）維持原本「按下即 Toggle、拖曳可連續塗繪/清除」的既有邏輯，不受影響。
+   5. 播放引擎 (逐拍排程 + 讀取線動畫 + 時間軸跳轉)
+   6. 版面校正 (動態使格子維持正方形)
+   7. 匯出 WAV 音樂種子 (OfflineAudioContext)
+   ================================================================ */
+
+/* ---------- 1. 資料模型 ---------- */
+
+// 鋼琴音高：C4 ~ C5 共 13 個音（7 白鍵 + 5 黑鍵），由高到低排列（符合鋼琴捲軸慣例：高音在上）
+// 注意：此順序天生就正確反映真實鍵盤結構 —— E4-F4 之間、B4-C5 之間本來就沒有黑鍵（半音）
+const PIANO_NOTES = [
+  {name:'C5',  freq:523.25, sharp:false},
+  {name:'B4',  freq:493.88, sharp:false},
+  {name:'A#4', freq:466.16, sharp:true },
+  {name:'A4',  freq:440.00, sharp:false},
+  {name:'G#4', freq:415.30, sharp:true },
+  {name:'G4',  freq:392.00, sharp:false},
+  {name:'F#4', freq:369.99, sharp:true },
+  {name:'F4',  freq:349.23, sharp:false},
+  {name:'E4',  freq:329.63, sharp:false},
+  {name:'D#4', freq:311.13, sharp:true },
+  {name:'D4',  freq:293.66, sharp:false},
+  {name:'C#4', freq:277.18, sharp:true },
+  {name:'C4',  freq:261.63, sharp:false},
+];
+
+// 打擊樂器：大鼓 / 三角鐵 / 銅鈸
+const PERCUSSION = [
+  {name:'大鼓',   icon:'🥁', type:'bass'},
+  {name:'三角鐵', icon:'△', type:'triangle'},
+  {name:'銅鈸',   icon:'✨', type:'cymbal'},
+];
+
+// 合併成 16 條音軌 (index 0~12 鋼琴, 13~15 打擊樂)
+const TRACKS = [
+  ...PIANO_NOTES.map(n => ({kind:'piano', ...n})),
+  ...PERCUSSION.map(p => ({kind:'perc', ...p})),
+];
+const TRACK_COUNT = TRACKS.length;   // 16
+const STEP_COUNT  = 16;              // 4 小節 x 4 拍 = 16 格
+
+// 音符資料：{id, track, start, length}（Toggle 模式下 length 固定為 1 格，畫面上呈現為單顆圓孔）
+let notes = [];
+let nextNoteId = 1;
+// occupied[track][step] = noteId | null，用於避免重疊 / 快速查找
+let occupied = Array.from({length:TRACK_COUNT}, () => Array(STEP_COUNT).fill(null));
+
+/* ---------- 2. DOM 初始化 ---------- */
+
+const trackLabelsEl = document.getElementById('trackLabels');
+const barsHeaderEl  = document.getElementById('barsHeader');
+const tracksColEl   = document.getElementById('tracksCol');
+const rollWrapperEl = document.getElementById('rollWrapper');
+const rollContentEl = document.getElementById('rollContent');
+const playheadEl    = document.getElementById('playhead');
+
+// 產生左側樂器標籤：白鍵為連續底層、黑鍵懸浮疊加在邊界（詳見 CSS .label-row.black-key）
+TRACKS.forEach((t, idx) => {
+  const row = document.createElement('div');
+  row.dataset.track = idx;
+  if (t.kind === 'piano') {
+    if (t.sharp) {
+      row.className = 'label-row black-key';
+      row.innerHTML = `<div class="black-chip"><span class="note-name">${t.name}</span></div>`;
+    } else {
+      row.className = 'label-row white-key';
+      row.innerHTML = `<span class="note-name">${t.name}</span>`;
+    }
+  } else {
+    row.className = 'label-row perc-row';
+    row.innerHTML = `<div class="perc-icon">${t.icon}</div><div class="perc-name">${t.name}</div>`;
+  }
+  trackLabelsEl.appendChild(row);
+});
+
+// 產生小節/拍號時間軸（可點擊跳轉讀取線）
+for (let bar = 1; bar <= 4; bar++) {
+  const block = document.createElement('div');
+  block.className = 'bar-block';
+
+  const title = document.createElement('div');
+  title.className = 'bar-title';
+  title.textContent = `小節 ${bar}`;
+  title.addEventListener('click', () => seekToStep((bar - 1) * 4));
+  block.appendChild(title);
+
+  const beats = document.createElement('div');
+  beats.className = 'beat-nums';
+  for (let b = 0; b < 4; b++) {
+    const span = document.createElement('span');
+    span.textContent = b + 1;
+    span.addEventListener('click', (e) => {
+      e.stopPropagation();
+      seekToStep((bar - 1) * 4 + b);
+    });
+    beats.appendChild(span);
+  }
+  block.appendChild(beats);
+
+  barsHeaderEl.appendChild(block);
+}
+
+// 產生 16 條音軌列（打孔紙捲主體）
+TRACKS.forEach((t, idx) => {
+  const row = document.createElement('div');
+  row.className = 'track-row' + (t.kind === 'perc' ? ' perc-track' : '');
+  row.dataset.track = idx;
+  tracksColEl.appendChild(row);
+});
+
+const labelRows = Array.from(trackLabelsEl.querySelectorAll('.label-row'));
+const trackRows = Array.from(tracksColEl.querySelectorAll('.track-row'));
+
+/* ---------- 3. Web Audio API 音色合成 ----------
+   四個合成函式皆額外接受 (ctx, destNode, ...) 參數：
+   - 即時播放時不傳入，函式會自動使用全域 audioCtx 與其 destination（行為與原本完全相同）
+   - 匯出 WAV 時會傳入 OfflineAudioContext 與其 destination，讓「同一套音色邏輯」
+     同時服務即時試聽與離線批次渲染，音色參數本身完全不變 */
+
+let audioCtx = null;
+let noiseBuffer = null;
+
+function ensureAudioCtx() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // 預先產生白噪音緩衝區（銅鈸使用），避免每次播放重新運算
+    const len = audioCtx.sampleRate * 1.0;
+    noiseBuffer = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume(); // iOS Safari 需在使用者互動時喚醒
+  return audioCtx;
+}
+
+// 儲存目前排定中的音源節點，供「暫停/停止」時即時消音（僅用於即時播放，離線匯出不使用）
+let activeSources = [];
+function trackSource(node) { activeSources.push(node); }
+function killAllSources() {
+  const now = audioCtx ? audioCtx.currentTime : 0;
+  activeSources.forEach(n => { try { n.stop(now); } catch (e) {} });
+  activeSources = [];
+}
+
+// 鋼琴音色：三角波 + 正弦波疊加，帶弦音質感的音量包絡
+function playPiano(freq, when, duration, ctx, destNode) {
+  const liveCtx = !ctx;
+  ctx = ctx || ensureAudioCtx();
+  destNode = destNode || ctx.destination;
+
+  const gain = ctx.createGain();
+  gain.connect(destNode);
+  gain.gain.setValueAtTime(0, when);
+  gain.gain.linearRampToValueAtTime(0.28, when + 0.012);            // 快速起音
+  gain.gain.exponentialRampToValueAtTime(0.0008, when + Math.max(duration, 0.35) + 0.4); // 弦音衰減
+
+  const osc1 = ctx.createOscillator();
+  osc1.type = 'triangle';
+  osc1.frequency.setValueAtTime(freq, when);
+  osc1.connect(gain);
+
+  const osc2 = ctx.createOscillator(); // 疊加正弦波增加溫暖泛音
+  osc2.type = 'sine';
+  osc2.frequency.setValueAtTime(freq * 2.005, when);
+  const gain2 = ctx.createGain();
+  gain2.gain.value = 0.06;
+  osc2.connect(gain2); gain2.connect(gain);
+
+  const stopAt = when + Math.max(duration, 0.35) + 0.5;
+  osc1.start(when); osc1.stop(stopAt);
+  osc2.start(when); osc2.stop(stopAt);
+  if (liveCtx) { trackSource(osc1); trackSource(osc2); }
+}
+
+// 大鼓：低頻正弦波快速降頻 + 快速衰減
+function playBassDrum(when, ctx, destNode) {
+  const liveCtx = !ctx;
+  ctx = ctx || ensureAudioCtx();
+  destNode = destNode || ctx.destination;
+
+  const osc = ctx.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(150, when);
+  osc.frequency.exponentialRampToValueAtTime(38, when + 0.15); // 音高快速下滑
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.9, when);
+  gain.gain.exponentialRampToValueAtTime(0.001, when + 0.32);
+
+  osc.connect(gain); gain.connect(destNode);
+  osc.start(when); osc.stop(when + 0.4);
+  if (liveCtx) trackSource(osc);
+}
+
+// 三角鐵：高頻正弦波 + 長衰減，疊加高次泛音模擬金屬清亮感
+function playTriangleInst(when, ctx, destNode) {
+  const liveCtx = !ctx;
+  ctx = ctx || ensureAudioCtx();
+  destNode = destNode || ctx.destination;
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.22, when);
+  gain.gain.exponentialRampToValueAtTime(0.0008, when + 1.3);
+  gain.connect(destNode);
+
+  const osc1 = ctx.createOscillator();
+  osc1.type = 'sine'; osc1.frequency.setValueAtTime(2800, when);
+  osc1.connect(gain);
+
+  const osc2 = ctx.createOscillator(); // 高次泛音增加金屬感
+  osc2.type = 'sine'; osc2.frequency.setValueAtTime(2800 * 2.4, when);
+  const gain2 = ctx.createGain(); gain2.gain.value = 0.12;
+  osc2.connect(gain2); gain2.connect(gain);
+
+  osc1.start(when); osc1.stop(when + 1.4);
+  osc2.start(when); osc2.stop(when + 1.4);
+  if (liveCtx) { trackSource(osc1); trackSource(osc2); }
+}
+
+// 銅鈸：白噪音 + 高通濾波器，乾脆俐落的金屬切音（約 0.15~0.2 秒）
+function playCymbal(when, ctx, destNode, nBuffer) {
+  const liveCtx = !ctx;
+  ctx = ctx || ensureAudioCtx();
+  destNode = destNode || ctx.destination;
+  nBuffer = nBuffer || noiseBuffer;
+
+  const src = ctx.createBufferSource();
+  src.buffer = nBuffer;
+
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass';
+  hp.frequency.setValueAtTime(8000, when); // 提高截止頻率，聲音更清亮俐落
+  hp.Q.value = 0.7;
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.5, when);
+  gain.gain.exponentialRampToValueAtTime(0.0009, when + 0.16); // 快速衰減，約 0.16 秒切斷
+
+  src.connect(hp); hp.connect(gain); gain.connect(destNode);
+  src.start(when); src.stop(when + 0.2);
+  if (liveCtx) trackSource(src);
+}
+
+// 依音軌類型觸發對應音色（ctx/destNode/nBuffer 留空時＝即時播放，傳入時＝離線匯出）
+function playTrackSound(trackIdx, when, duration, ctx, destNode, nBuffer) {
+  const t = TRACKS[trackIdx];
+  if (t.kind === 'piano') playPiano(t.freq, when, duration, ctx, destNode);
+  else if (t.type === 'bass') playBassDrum(when, ctx, destNode);
+  else if (t.type === 'triangle') playTriangleInst(when, ctx, destNode);
+  else if (t.type === 'cymbal') playCymbal(when, ctx, destNode, nBuffer);
+}
+
+/* ---------- 4. 打孔互動 (Pointer Events：滑鼠 + 觸控通用，單鍵 Toggle 圓形打孔) ---------- */
+
+function getColWidth() {
+  return parseFloat(getComputedStyle(document.getElementById('app')).getPropertyValue('--colw'));
+}
+function clampStep(s) { return Math.max(0, Math.min(STEP_COUNT - 1, s)); }
+
+// 新增音符：填入 occupied 表並存進 notes 陣列
+function addNote(track, start, length) {
+  const id = nextNoteId++;
+  for (let s = start; s < start + length; s++) occupied[track][s] = id;
+  notes.push({id, track, start, length});
+  return id;
+}
+function removeNoteById(id) {
+  notes = notes.filter(n => {
+    if (n.id === id) {
+      for (let s = n.start; s < n.start + n.length; s++) occupied[n.track][s] = null;
+      return false;
+    }
+    return true;
+  });
+}
+function clearAllNotes() {
+  notes = [];
+  occupied = Array.from({length:TRACK_COUNT}, () => Array(STEP_COUNT).fill(null));
+}
+
+// 建立一顆圓形打孔元素（置中於格子內，直徑約為欄寬的 70%）
+function makeHoleEl(track, step, extraClass) {
+  const colw = getColWidth();
+  const dia = colw * 0.7;
+  const t = TRACKS[track];
+  const el = document.createElement('div');
+  el.className = 'note-hole' + (t.kind === 'perc' ? ' type-' + t.type : '') + (extraClass ? ' ' + extraClass : '');
+  el.style.width = dia + 'px';
+  el.style.height = dia + 'px';
+  el.style.left = (step * colw + (colw - dia) / 2) + 'px';
+  el.style.top = '50%';
+  el.style.marginTop = (-dia / 2) + 'px';
+  return el;
+}
+
+// 依 notes 陣列重新繪製所有圓形打孔
+function renderNotes() {
+  trackRows.forEach(row => row.querySelectorAll('.note-hole').forEach(el => el.remove()));
+  notes.forEach(n => {
+    const row = trackRows[n.track];
+    for (let s = n.start; s < n.start + n.length; s++) {
+      const el = makeHoleEl(n.track, s);
+      el.dataset.noteId = n.id;
+      row.appendChild(el);
+    }
+  });
+}
+
+// 對單一格子執行「打孔」：新增音符、立即試聽、標籤發光
+function punchStep(track, step) {
+  addNote(track, step, 1);
+  const ctx = ensureAudioCtx();
+  playTrackSound(track, ctx.currentTime, 0.3);
+  flashLabel(track);
+}
+// 對單一格子執行「取消打孔」
+function unpunchStep(track, step) {
+  const id = occupied[track][step];
+  if (id) removeNoteById(id);
+}
+// 單一格子的 Toggle：有孔取消、沒孔打孔
+function toggleStep(track, step) {
+  if (occupied[track][step]) unpunchStep(track, step);
+  else punchStep(track, step);
+}
+
+// 音軌標籤瞬間發光（試聽/播放同步回饋）
+function flashLabel(track) {
+  const row = labelRows[track];
+  row.classList.add('active-glow');
+  setTimeout(() => row.classList.remove('active-glow'), 220);
+}
+
+function stepFromClientX(clientX) {
+  const colw = getColWidth();
+  const rect = rollContentEl.getBoundingClientRect();
+  return clampStep(Math.floor((clientX - rect.left) / colw));
+}
+
+// --- 滑鼠（mouse）拖曳狀態：沿用原本「按下即 Toggle、拖曳可連續塗繪/清除」邏輯，不受觸控閾值判定影響 ---
+let dragState = null; // {track, action:'paint'|'erase', touchedSteps:Set}
+
+// --- 【新增】觸控 / 觸控筆手勢閾值判定：點擊打孔 vs. 滑動捲頁 ----------------------------------
+// 問題成因：原本 pointerdown 一律立即觸發打孔 + e.preventDefault()，等於一律搶走手勢，
+// 導致手機/平板想水平滑動紙捲時，反而被畫出一長串誤觸孔洞、也無法順暢捲動畫面。
+// 解法：觸控輸入時，pointerdown 先只記錄起點座標，暫不打孔、也暫不 preventDefault；
+// 等 pointermove 累積的移動距離超過 8px，才判定為「滑動」並立即取消打孔判定，
+// 之後交由瀏覽器原生水平捲動接手（.track-row 的 touch-action:pan-x pan-y 已允許此手勢）；
+// 若放開手指時全程移動距離都在 8px 閾值內，才視為單純點擊，執行打孔/取消打孔 Toggle。
+const TOUCH_MOVE_THRESHOLD = 8; // px
+
+let touchGesture = null;
+/* touchGesture = {
+     pointerId, track, step,
+     startX, startY,
+     committed: null | 'scroll'   // null = 仍在閾值內，尚未判定
+   } */
+
+// --- Pointer 事件綁定（滑鼠 + 觸控通用） ---
+tracksColEl.addEventListener('pointerdown', (e) => {
+  const rowEl = e.target.closest('.track-row');
+  if (!rowEl) return;
+  const track = parseInt(rowEl.dataset.track, 10);
+  const step = stepFromClientX(e.clientX);
+
+  if (e.pointerType === 'mouse') {
+    // 滑鼠：完全沿用原本互動邏輯，不受觸控閾值判定影響
+    let action;
+    if (occupied[track][step]) { unpunchStep(track, step); action = 'erase'; }
+    else { punchStep(track, step); action = 'paint'; }
+    renderNotes();
+
+    dragState = { track, action, touchedSteps: new Set([step]) };
+    rowEl.setPointerCapture && rowEl.setPointerCapture(e.pointerId);
+    e.preventDefault();
+    return;
+  }
+
+  // 觸控 / 觸控筆：先記錄手勢起點，暫不打孔、暫不 preventDefault，
+  // 讓瀏覽器視需要自然接手原生水平捲動
+  touchGesture = {
+    pointerId: e.pointerId,
+    track, step,
+    startX: e.clientX,
+    startY: e.clientY,
+    committed: null,
+  };
+  rowEl.setPointerCapture && rowEl.setPointerCapture(e.pointerId);
+});
+
+tracksColEl.addEventListener('pointermove', (e) => {
+  // 滑鼠：沿用原本連續塗繪/清除邏輯
+  if (e.pointerType === 'mouse') {
+    if (!dragState) return;
+    const step = stepFromClientX(e.clientX);
+    if (dragState.touchedSteps.has(step)) return; // 同一次拖曳中，每格只切換一次
+    dragState.touchedSteps.add(step);
+    const track = dragState.track;
+    if (dragState.action === 'paint') {
+      if (!occupied[track][step]) punchStep(track, step);
+    } else {
+      if (occupied[track][step]) unpunchStep(track, step);
+    }
+    renderNotes();
+    return;
+  }
+
+  // 觸控：依累積移動距離判定「滑動」或仍在「點擊」判定範圍內
+  if (!touchGesture || touchGesture.pointerId !== e.pointerId || touchGesture.committed) return;
+
+  const dx = e.clientX - touchGesture.startX;
+  const dy = e.clientY - touchGesture.startY;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+
+  if (dist > TOUCH_MOVE_THRESHOLD) {
+    // 超過閾值 → 立即取消打孔判定，交由瀏覽器原生水平捲動接手
+    touchGesture.committed = 'scroll';
+  }
+  // 距離仍在 8px 閾值內 → 不做任何打孔動作，等待放開手指時判定
+});
+
+window.addEventListener('pointerup', (e) => {
+  // 滑鼠拖曳收尾
+  if (e.pointerType === 'mouse') {
+    dragState = null;
+    return;
+  }
+
+  // 觸控：全程移動距離都在閾值內 → 判定為單純點擊，執行打孔/取消打孔 Toggle
+  if (touchGesture && touchGesture.pointerId === e.pointerId) {
+    if (touchGesture.committed === null) {
+      toggleStep(touchGesture.track, touchGesture.step);
+      renderNotes();
+    }
+    touchGesture = null;
+  }
+});
+
+window.addEventListener('pointercancel', (e) => {
+  if (e.pointerType === 'mouse') { dragState = null; return; }
+  // 瀏覽器接手原生捲動時通常會觸發 pointercancel，一律視為滑動，不執行打孔
+  if (touchGesture && touchGesture.pointerId === e.pointerId) touchGesture = null;
+});
+
+/* ---------- 5. 播放引擎 ---------- */
+
+let bpm = 120;
+let isPlaying = false;
+let playStartTime = 0;   // 對應 audioCtx.currentTime 的播放起始基準
+let pausedElapsed = 0;   // 暫停/跳轉時的已播放秒數（用於續播）
+let rafId = null;
+let pendingTimeouts = [];
+
+const bpmSlider = document.getElementById('bpmSlider');
+const bpmVal = document.getElementById('bpmVal');
+
+// 當滑桿被拖曳滑動時，即時更新 BPM 數據
+function updateBpmFromSlider(e) {
+  e.stopPropagation(); // 檔下拖曳事件，不讓它傳到下方的紙捲
+  bpm = parseInt(bpmSlider.value, 10);
+  bpmVal.textContent = bpm;
+}
+
+// 綁定所有拖曳與點按相關事件
+bpmSlider.addEventListener('input', updateBpmFromSlider);
+bpmSlider.addEventListener('change', updateBpmFromSlider);
+bpmSlider.addEventListener('pointerdown', (e) => e.stopPropagation());
+bpmSlider.addEventListener('pointermove', (e) => e.stopPropagation());
+bpmSlider.addEventListener('touchstart', (e) => e.stopPropagation());
+bpmSlider.addEventListener('touchmove', (e) => e.stopPropagation());
+
+function stepDuration() { return 60 / bpm; } // 每格 = 一拍（四分音符）
+function totalDuration() { return stepDuration() * STEP_COUNT; }
+
+function updatePlayheadPx(px) {
+  playheadEl.style.transform = `translateX(${px}px)`;
+}
+
+function clearPendingTimeouts() {
+  pendingTimeouts.forEach(id => clearTimeout(id));
+  pendingTimeouts = [];
+}
+
+function scheduleUpcomingNotes() {
+  const ctx = ensureAudioCtx();
+  const sd = stepDuration();
+  const elapsedNow = pausedElapsed;
+  notes.forEach(n => {
+    const noteTimeOffset = n.start * sd;
+    if (noteTimeOffset >= elapsedNow - 0.0001) {
+      const when = playStartTime + noteTimeOffset;
+      playTrackSound(n.track, when, n.length * sd);
+      const delayMs = Math.max(0, (when - ctx.currentTime) * 1000);
+      const tid = setTimeout(() => {
+        flashLabel(n.track);
+        trackRows[n.track].querySelectorAll(`[data-note-id="${n.id}"]`).forEach(el => {
+          el.classList.add('active-note');
+          setTimeout(() => el.classList.remove('active-note'), Math.max(180, n.length * sd * 1000 * 0.6));
+        });
+      }, delayMs);
+      pendingTimeouts.push(tid);
+    }
+  });
+}
+
+function rafLoop() {
+  if (!isPlaying) return;
+  const ctx = ensureAudioCtx();
+  const elapsed = ctx.currentTime - playStartTime;
+  const total = totalDuration();
+  const colw = getColWidth();
+  const rollWidth = colw * STEP_COUNT;
+
+  if (elapsed >= total) {
+    updatePlayheadPx(rollWidth);
+    stopPlayback();
+    setTimeout(resetPlayheadToStart, 180); // 停止後短暫停留再歸零，讓孩子看到「跑完」的感覺
+    return;
+  }
+  updatePlayheadPx((elapsed / total) * rollWidth);
+  rafId = requestAnimationFrame(rafLoop);
+}
+
+function resetPlayheadToStart() {
+  playheadEl.style.display = 'none';
+  updatePlayheadPx(0);
+}
+
+const playBtn = document.getElementById('playBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const resetBtn = document.getElementById('resetBtn');
+
+function startPlayback() {
+  const ctx = ensureAudioCtx();
+  isPlaying = true;
+  playheadEl.style.display = 'block';
+  playStartTime = ctx.currentTime - pausedElapsed;
+  scheduleUpcomingNotes();
+  bpmSlider.disabled = true;
+  playBtn.disabled = true;
+  rafLoop();
+}
+
+function stopPlayback() {
+  isPlaying = false;
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = null;
+  clearPendingTimeouts();
+  killAllSources();
+  pausedElapsed = 0;
+  bpmSlider.disabled = false;
+  playBtn.disabled = false;
+}
+
+function pausePlayback() {
+  if (!isPlaying) return;
+  const ctx = ensureAudioCtx();
+  pausedElapsed = ctx.currentTime - playStartTime;
+  isPlaying = false;
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = null;
+  clearPendingTimeouts();
+  killAllSources();
+  bpmSlider.disabled = false;
+  playBtn.disabled = false;
+}
+
+// 【時間軸跳轉】點擊小節或拍號，讀取線立即跳轉至該位置；
+// 若正在播放中，會從新位置無縫接續播放；若未播放，則停在該處等待下次按下播放。
+function seekToStep(step) {
+  step = clampStep(step);
+  const sd = stepDuration();
+  const wasPlaying = isPlaying;
+
+  if (isPlaying) {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+    clearPendingTimeouts();
+    killAllSources();
+    isPlaying = false;
+  }
+
+  pausedElapsed = step * sd;
+  const colw = getColWidth();
+  playheadEl.style.display = 'block';
+  updatePlayheadPx(step * colw);
+
+  if (wasPlaying) startPlayback();
+}
+
+playBtn.addEventListener('click', () => { if (!isPlaying) startPlayback(); });
+pauseBtn.addEventListener('click', () => pausePlayback());
+resetBtn.addEventListener('click', () => {
+  stopPlayback();
+  resetPlayheadToStart();
+  clearAllNotes();
+  renderNotes();
+});
+
+/* ---------- 6. 版面校正：讓格子永遠維持「正方形」 ----------
+   欄寬 (--colw) 動態對齊實際列高，確保打孔紙捲的每一格都是正方形，
+   並讓 .roll-content 寬度 (= colw * 16) 隨之精準覆蓋整個可捲動範圍。 */
+function syncColumnWidth() {
+  if (!trackRows.length) return;
+  const rowH = trackRows[0].getBoundingClientRect().height;
+  if (rowH > 4) {
+    document.getElementById('app').style.setProperty('--colw', rowH + 'px');
+    renderNotes();
+    // 依目前播放進度比例，重新校正讀取線像素位置
+    if (playheadEl.style.display === 'block') {
+      const total = totalDuration();
+      const elapsedSec = isPlaying && audioCtx ? (audioCtx.currentTime - playStartTime) : pausedElapsed;
+      const ratio = Math.min(1, Math.max(0, elapsedSec / total));
+      updatePlayheadPx(ratio * rowH * STEP_COUNT);
+    }
+  }
+}
+
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(syncColumnWidth, 120);
+});
+window.addEventListener('load', syncColumnWidth);
+requestAnimationFrame(syncColumnWidth); // 首次進場立即嘗試對齊
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(syncColumnWidth); // 字型載入完成後再校正一次，避免文字排版誤差
+}
+
+/* 初始繪製 */
+renderNotes();
+
+/* ---------- 7. 匯出 WAV 音樂種子 (OfflineAudioContext) ----------
+   讀取目前紙捲上所有已打孔的資料，透過 OfflineAudioContext 在背景（非即時）
+   快速合成一段完整的 4 小節音檔，並自動下載為 welte_music_seed.wav，
+   供後續銜接生成式 AI 使用。合成邏輯完全沿用第 3 節的音色函式，僅切換輸出目標。 */
+
+const downloadBtn = document.getElementById('downloadBtn');
+
+// 將 AudioBuffer（單聲道）編碼為標準 16-bit PCM WAV 檔案的 Blob
+function encodeWavBlob(audioBuffer) {
+  const numChannels = audioBuffer.numberOfChannels;
+  const sampleRate = audioBuffer.sampleRate;
+  const bitDepth = 16;
+  const bytesPerSample = bitDepth / 8;
+  const blockAlign = numChannels * bytesPerSample;
+
+  // 交錯多聲道取樣（本專案固定使用單聲道，仍保留通用寫法）
+  const numFrames = audioBuffer.length;
+  const interleaved = new Float32Array(numFrames * numChannels);
+  for (let ch = 0; ch < numChannels; ch++) {
+    const chData = audioBuffer.getChannelData(ch);
+    for (let i = 0; i < numFrames; i++) {
+      interleaved[i * numChannels + ch] = chData[i];
+    }
+  }
+
+  const dataSize = interleaved.length * bytesPerSample;
+  const buffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buffer);
+
+  function writeString(offset, str) {
+    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+  }
+
+  writeString(0, 'RIFF');
+  view.setUint32(4, 36 + dataSize, true);
+  writeString(8, 'WAVE');
+  writeString(12, 'fmt ');
+  view.setUint32(16, 16, true);        // fmt chunk 長度
+  view.setUint16(20, 1, true);         // PCM 格式
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * blockAlign, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, bitDepth, true);
+  writeString(36, 'data');
+  view.setUint32(40, dataSize, true);
+
+  // 32-bit float → 16-bit PCM
+  let offset = 44;
+  for (let i = 0; i < interleaved.length; i++, offset += 2) {
+    const s = Math.max(-1, Math.min(1, interleaved[i]));
+    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+  }
+
+  return new Blob([view], { type: 'audio/wav' });
+}
+
+async function exportMusicSeedWav() {
+  // 紙捲上完全沒有打孔時，溫馨提示學生
+  if (notes.length === 0) {
+    alert('請先在紙捲上記錄一些音符，再下載音樂種子喔！');
+    return;
+  }
+
+  const originalLabel = downloadBtn.innerHTML;
+  downloadBtn.disabled = true;
+  downloadBtn.innerHTML = '⏳ 轉換中...';
+
+  try {
+    const sd = stepDuration();
+    const tail = 1.2; // 保留給最長衰減音色（三角鐵約 1.4 秒）的尾音緩衝，避免被硬切
+    const totalSec = sd * STEP_COUNT + tail;
+    const sampleRate = 44100;
+    const offlineCtx = new OfflineAudioContext(1, Math.ceil(sampleRate * totalSec), sampleRate);
+
+    // AudioBuffer 無法跨 AudioContext 共用，銅鈸需要專屬於離線環境的白噪音緩衝區
+    const offNoiseLen = sampleRate * 1.0;
+    const offNoiseBuffer = offlineCtx.createBuffer(1, offNoiseLen, sampleRate);
+    const offData = offNoiseBuffer.getChannelData(0);
+    for (let i = 0; i < offNoiseLen; i++) offData[i] = Math.random() * 2 - 1;
+
+    // 依目前紙捲上所有打孔資料，於離線環境中依拍序重新排程（沿用相同音色合成邏輯）
+    notes.forEach(n => {
+      const when = n.start * sd;
+      playTrackSound(n.track, when, n.length * sd, offlineCtx, offlineCtx.destination, offNoiseBuffer);
+    });
+
+    const renderedBuffer = await offlineCtx.startRendering();
+    const wavBlob = encodeWavBlob(renderedBuffer);
+
+    const url = URL.createObjectURL(wavBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'welte_music_seed.wav';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  } catch (err) {
+    console.error('匯出音樂種子 WAV 時發生錯誤：', err);
+    alert('匯出音樂種子時發生錯誤，請再試一次。');
+  } finally {
+    downloadBtn.disabled = false;
+    downloadBtn.innerHTML = originalLabel;
+  }
+}
+
+downloadBtn.addEventListener('click', exportMusicSeedWav);
+</script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>奇美無人樂團：二進位打孔紙捲創客體驗</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
@@ -32,7 +32,7 @@
   --radius-sm:7px;
 }
 
-*{box-sizing:border-box;}
+*{box-sizing:border-box; touch-action: manipulation;}
 html,body{
   margin:0;padding:0;height:100%;overflow:hidden;
   font-family:'Baloo 2','Noto Sans TC',sans-serif;
@@ -317,7 +317,7 @@ html,body{
   flex:1 1 0; min-height:0;
   position:relative;
   border-bottom:1px solid var(--paper-line);
-  touch-action: pan-x pan-y; /* 允許雙向手勢 */
+  touch-action: manipulation; /* 允許雙向手勢 */
 }
 .track-row.perc-track{ background:rgba(139,94,60,0.05); }
 
